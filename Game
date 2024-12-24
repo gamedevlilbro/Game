@@ -56,3 +56,83 @@
   <script src="game.js"></script>
 </body>
 </html>
+// Game state
+const gameState = {
+  player1: { health: 100, defense: false },
+  player2: { health: 100, defense: false },
+  gameActive: true,
+};
+
+// Health bar elements
+const player1HealthBar = document.getElementById('player1-health');
+const player2HealthBar = document.getElementById('player2-health');
+const winnerDisplay = document.getElementById('winner');
+
+// Update health bars
+function updateHealthBars() {
+  player1HealthBar.style.width = `${gameState.player1.health}%`;
+  player2HealthBar.style.width = `${gameState.player2.health}%`;
+
+  // Change color to red if health is low
+  if (gameState.player1.health <= 30) player1HealthBar.style.background = 'red';
+  if (gameState.player2.health <= 30) player2HealthBar.style.background = 'red';
+}
+
+// Determine winner
+function checkWinner() {
+  if (gameState.player1.health <= 0) {
+    winnerDisplay.textContent = "Player 2 Wins!";
+    gameState.gameActive = false;
+  } else if (gameState.player2.health <= 0) {
+    winnerDisplay.textContent = "Player 1 Wins!";
+    gameState.gameActive = false;
+  }
+}
+
+// Handle attacks
+function attack(attacker, defender) {
+  if (gameState[defender].defense) {
+    // Reduced damage if the defender is defending
+    gameState[defender].health -= 5;
+  } else {
+    // Full damage if not defending
+    gameState[defender].health -= 10;
+  }
+  gameState[defender].health = Math.max(0, gameState[defender].health);
+  updateHealthBars();
+  checkWinner();
+}
+
+// Handle key presses
+document.addEventListener('keydown', (e) => {
+  if (!gameState.gameActive) return;
+
+  // Player 1 controls
+  if (e.key === 'a' || e.key === 'A') {
+    attack('player1', 'player2');
+  } else if (e.key === 'd' || e.key === 'D') {
+    gameState.player1.defense = true;
+  }
+
+  // Player 2 controls
+  if (e.key === 'l' || e.key === 'L') {
+    attack('player2', 'player1');
+  } else if (e.key === 'k' || e.key === 'K') {
+    gameState.player2.defense = true;
+  }
+});
+
+// Reset defense on key up
+document.addEventListener('keyup', (e) => {
+  if (e.key === 'd' || e.key === 'D') {
+    gameState.player1.defense = false;
+  }
+  if (e.key === 'k' || e.key === 'K') {
+    gameState.player2.defense = false;
+  }
+});
+
+// Initialize game
+updateHealthBars();
+
+
